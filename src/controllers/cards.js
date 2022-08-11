@@ -17,7 +17,7 @@ exports.createCard = (req, res) => {
         res.status(500).send({ Message: `При создании карточки произошла ошибка ${err.name} с сообщением ${err.message}` });
       }
     });
-};
+}
 
 exports.getCards = (req, res) => Card.find({})
   .populate(['owner'])
@@ -39,7 +39,7 @@ exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: myId } }, // $addToSet - добавить элемент в массив, если его там ещё нет(только для монго), $pull чтобы убрать;
-    { new: true },
+    { new: true }
   )
   .orFail(new Error('NotValididId'))
   .then((user) => res.status(200).send(user))
@@ -60,7 +60,7 @@ exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: myId } }, // см. выше
-    { new: true },
+    { new: true }
   )
   .orFail(new Error('NotValididId'))
   .then((user) => res.status(200).send(user))
@@ -74,4 +74,4 @@ exports.dislikeCard = (req, res) => {
       res.status(500).send({ Message: `Ошибка по умолчанию ${err.name} с сообщением ${err.message}` });
     }
   })
-};
+}

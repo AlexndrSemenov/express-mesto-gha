@@ -12,7 +12,7 @@ exports.createUser = (req, res) => {
         res.status(500).send({ Message: `При создании пользователя произошла ошибка ${err.name} с сообщением ${err.message}` });
       }
     });
-};
+}
 
 exports.getUsers = (req, res) => User.find({})
   .then((users) => res.send({ data: users }))
@@ -46,14 +46,12 @@ exports.updateUserProfile = (req, res) => {
       } else {
         res.status(500).send({ Message: `В процессе обновления данных пользователя произошла ошибка ${err.name} с сообщением ${err.message}` });
       }
-    })
+    });
 
   } else {
     res.status(400).send({ Message: 'Переданы некорректные данные при обновлении профиля' });
   }
 }
-
-
 
 exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
@@ -77,5 +75,4 @@ exports.updateUserAvatar = (req, res) => {
   } else {
     res.status(400).send({ Message: 'Переданы некорректные данные при обновлении аватара' });
   }
-
 }
