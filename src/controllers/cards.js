@@ -25,13 +25,21 @@ exports.getCards = (req, res) => Card.find({})
   .catch((err) => res.status(500).send({ message: `Произошла ошибка получения списка карточек. ${err.name} / ${err.message}` }));
 
 exports.deleteCard = (req, res) => Card.findByIdAndRemove(req.params.cardId)
+  .orFail(new Error('NotValididId'))
   .then((card) => res.status(200).send(card))
   .catch((err) => {
-    if (err.name === 'CastError') {
+
+    if (err.message === 'NotValididId') {
       res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+    }
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Переданы некорректные данные при удалении карточки.' });
     } else {
       res.status(500).send({ message: `В процессе удаления карточки произошла ошибка ${err.name} с сообщением ${err.message}` });
     }
+
+
+
   });
 
 exports.likeCard = (req, res) => {
