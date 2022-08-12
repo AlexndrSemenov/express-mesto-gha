@@ -79,3 +79,8 @@ exports.updateUserAvatar = (req, res) => {
     res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
   }
 }
+
+
+exports.upd = (req, res) => {
+  res.status(404).send({ message: 'Неправильный путь' });
+}
