@@ -7,9 +7,9 @@ exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ Message:''});
+        res.status(400).send({ message: `Переданы некорректные данные при создании пользователя ${err.name} с сообщением ${err.message}` });
       } else {
-        res.status(500).send({ Message: `При создании пользователя произошла ошибка ${err.name} с сообщением ${err.message}` });
+        res.status(500).send({ message: `При создании пользователя произошла ошибка ${err.name} с сообщением ${err.message}` });
       }
     });
 }
