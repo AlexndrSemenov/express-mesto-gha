@@ -24,6 +24,9 @@ exports.getUserById = (req, res) => User.findById(req.params.userId)
   .catch((err) => {
     if (err.message === 'NotValididId') {
       res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
+    }
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Передан некорректный _id при поиске пользователя' });
     } else {
       res.status(500).send({ message: `В процессе поиска пользователя произошла ошибка ${err.name} с сообщением ${err.message}` });
     }
