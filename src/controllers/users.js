@@ -80,7 +80,6 @@ exports.updateUserAvatar = (req, res) => {
   }
 }
 
-
-exports.upd = (req, res) => {
+exports.nonExistingPath = (req, res) => {
   res.status(404).send({ message: 'Неправильный путь' });
 }
