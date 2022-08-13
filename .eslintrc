@@ -1,5 +1,6 @@
 {
   "extends": [//Пресет с настройками
+    "airbnb-base",
     "eslint:recommended",
     "plugin:react/recommended"
   ],
