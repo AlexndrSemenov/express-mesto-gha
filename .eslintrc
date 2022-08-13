@@ -1,23 +1,27 @@
 {
-  "extends": [//Пресет с настройками
+  "plugins": [
+    "import"
+  ],
+  "extends": [
     "airbnb-base",
     "eslint:recommended",
     "plugin:react/recommended"
   ],
 
-  "parser": "babel-eslint",// Парсер для обработки jsx кода
+  "parser": "babel-eslint",
 
-  "env": {// где будет исполняться наш код
+  "env": {
     "browser": true,
     "commonjs": true,
-    "es2021": true
+    "es2021": true,
+    "node": true
   },
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
     },
     "ecmaVersion": "latest",
-    "sourceType": "module"// Позволяет использовать import/export
+    "sourceType": "module"
   },
 
   "rules": {
@@ -25,30 +29,3 @@
     "no-param-reassign": "off"
   }
 }
-
-// const { off } = require("./src/models/user")
-
-// module.exports = {
-//   env: {
-//     browser: true,
-//     commonjs: true,
-//     es2021: true,
-//   },
-//   extends: [
-//     'plugin:react/recommended',
-//     'airbnb',
-//   ],
-//   parserOptions: {
-//     ecmaFeatures: {
-//       jsx: true,
-//     },
-//     ecmaVersion: 'latest',
-//   },
-//   plugins: [
-//     'react',
-//   ],
-//   rules: {
-//     "no-underscore-dangle": off,
-//     "no-param-reassign": off,
-//   }
-// }
