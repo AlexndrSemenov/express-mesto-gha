@@ -32,7 +32,7 @@ exports.deleteCard = (req, res) => Card.findByIdAndRemove(req.params.cardId)
     if (err.message === 'NotValididId') {
       res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
     }
-    if (err.name === 'CastError') {
+    else if (err.name === 'CastError') {
       res.status(400).send({ message: 'Переданы некорректные данные при удалении карточки.' });
     } else {
       res.status(500).send({ message: `В процессе удаления карточки произошла ошибка ${err.name} с сообщением ${err.message}` });
@@ -55,7 +55,7 @@ exports.likeCard = (req, res) => {
     if (err.message === 'NotValididId') {
       res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
     }
-    if (err.name === 'CastError') {
+    else if (err.name === 'CastError') {
       res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка.' });
     } else {
       res.status(500).send({ message: `Ошибка по умолчанию ${err.name} с сообщением ${err.message}` });
@@ -76,7 +76,7 @@ exports.dislikeCard = (req, res) => {
     if (err.message === 'NotValididId') {
       res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
     }
-    if (err.name === 'CastError') {
+    else if (err.name === 'CastError') {
       res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка.' });
     } else {
       res.status(500).send({ message: `Ошибка по умолчанию ${err.name} с сообщением ${err.message}` });

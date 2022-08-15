@@ -1,31 +1,9 @@
+//правильные настройки от ревьюера
 {
-  "plugins": [
-    "import"
-  ],
-  "extends": [
-    "airbnb-base",
-    "eslint:recommended",
-    "plugin:react/recommended"
-  ],
-
-  "parser": "babel-eslint",
-
-  "env": {
-    "browser": true,
-    "commonjs": true,
-    "es2021": true,
-    "node": true
-  },
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "ecmaVersion": "latest",
-    "sourceType": "module"
-  },
+  "extends": "airbnb-base",
 
   "rules": {
-    "no-underscore-dangle": "off",
-    "no-param-reassign": "off"
+    "no-underscore-dangle": ["error", { "allow": ["_id"]}],
+    "eol-last": "0"
   }
 }

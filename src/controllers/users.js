@@ -25,7 +25,7 @@ exports.getUserById = (req, res) => User.findById(req.params.userId)
     if (err.message === 'NotValididId') {
       res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
     }
-    if (err.name === 'CastError') {
+    else if (err.name === 'CastError') {
       res.status(400).send({ message: 'Передан некорректный _id при поиске пользователя' });
     } else {
       res.status(500).send({ message: `В процессе поиска пользователя произошла ошибка ${err.name} с сообщением ${err.message}` });
@@ -44,7 +44,7 @@ exports.updateUserProfile = (req, res) => {
       if (err.message === 'NotValididId' || err.name === 'CastError') {
         res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
       }
-      if (err.name === 'ValidationError') {
+      else if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       } else {
         res.status(500).send({ message: `В процессе обновления данных пользователя произошла ошибка ${err.name} с сообщением ${err.message}` });
@@ -68,7 +68,7 @@ exports.updateUserAvatar = (req, res) => {
       if (err.message === 'NotValididId' || err.name === 'CastError') {
         res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
       }
-      if (err.name === 'ValidationError') {
+      else if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
       } else {
         res.status(500).send({ message: `В процессе обновления аватарки произошла ошибка ${err.name} с сообщением ${err.message}` });
