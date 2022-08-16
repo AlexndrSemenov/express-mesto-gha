@@ -17,5 +17,4 @@ router.patch('/users/me/avatar', updateUserAvatar);
 
 router.patch('/404', nonExistingPath);
 
-
 module.exports = router;
