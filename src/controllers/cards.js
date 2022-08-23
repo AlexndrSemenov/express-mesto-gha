@@ -1,4 +1,8 @@
 const Card = require('../models/card');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
+const AlreadExistsErr = require('../errors/already-exists-err');
+const AuthorizationError = require('../errors/authorization-err');
 
 const HttpCodes = {
   badRequest: 400,
@@ -6,7 +10,7 @@ const HttpCodes = {
   internalServerError: 500,
 };
 
-exports.createCard = (req, res) => {
+exports.createCard = (req, res, next) => {
   const {
     name, link, likes, createdAt,
   } = req.body;
@@ -18,30 +22,41 @@ exports.createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(HttpCodes.badRequest).send({ message: 'Переданы некорректные данные при создании карточки' });
-      } else {
-        res.status(HttpCodes.internalServerError).send({ message: `При создании карточки произошла ошибка ${err.name} с сообщением ${err.message}` });
+        throw new BadRequestError('Переданы некорректные данные при создании карточки');
       }
-    });
+      next(err);
+    })
+    .catch(next);
 };
 
-exports.getCards = (req, res) => Card.find({})
+exports.getCards = (req, res, next) => Card.find({})
   .populate(['owner'])
   .then((cards) => res.send({ data: cards }))
-  .catch((err) => res.status(HttpCodes.internalServerError).send({ message: `Произошла ошибка получения списка карточек. ${err.name} / ${err.message}` }));
+  .catch(() => {
+    throw new Error('При получении списка пользователей произошла ошибка');
+  })
+  .catch(next);
 
-exports.deleteCard = (req, res) => Card.findByIdAndRemove(req.params.cardId)
-  .orFail(new Error('NotValididId'))
-  .then((card) => res.send(card))
-  .catch((err) => {
-    if (err.message === 'NotValididId') {
-      res.status(HttpCodes.notFound).send({ message: 'Карточка с указанным _id не найдена.' });
-    } else if (err.name === 'CastError') {
-      res.status(HttpCodes.badRequest).send({ message: 'Переданы некорректные данные при удалении карточки.' });
-    } else {
-      res.status(HttpCodes.internalServerError).send({ message: `В процессе удаления карточки произошла ошибка ${err.name} с сообщением ${err.message}` });
-    }
-  });
+exports.deleteCard = (req, res) => {
+  const { cardId } = req.params;
+  const deletedCard = Card.findById(cardId);
+  if (req.user._id === deletedCard.owner.toString()) {
+    Card.findByIdAndRemove(req.params.cardId)
+      .orFail(new Error('NotValididId'))
+      .then((card) => res.send(card))
+      .catch((err) => {
+        if (err.message === 'NotValididId') {
+          res.status(HttpCodes.notFound).send({ message: 'Карточка с указанным _id не найдена.' });
+        } else if (err.name === 'CastError') {
+          res.status(HttpCodes.badRequest).send({ message: 'Переданы некорректные данные при удалении карточки.' });
+        } else {
+          res.status(HttpCodes.internalServerError).send({ message: `В процессе удаления карточки произошла ошибка ${err.name} с сообщением ${err.message}` });
+        }
+      });
+  } else {
+    res.status(HttpCodes.badRequest).send({ message: 'Переданы некорректные данные при удалении карточки.' });
+  }
+};
 
 exports.likeCard = (req, res) => {
   const myId = req.user._id;
