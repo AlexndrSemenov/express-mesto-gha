@@ -1,14 +1,8 @@
 const Card = require('../models/card');
 const BadRequestError = require('../errors/bad-request-err'); // 400
-const NotFoundError = require('../errors/not-found-err'); // 404
-const AlreadExistsErr = require('../errors/already-exists-err'); // 409
+// const NotFoundError = require('../errors/not-found-err'); // 404
+// const AlreadExistsErr = require('../errors/already-exists-err'); // 409
 const AuthorizationError = require('../errors/authorization-err'); // 401
-
-const HttpCodes = {
-  badRequest: 400,
-  notFound: 404,
-  internalServerError: 500,
-};
 
 exports.createCard = (req, res, next) => {
   const {
@@ -37,7 +31,6 @@ exports.getCards = (req, res, next) => Card.find({})
   })
   .catch(next);
 
-
 module.exports.deleteCard = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -59,7 +52,6 @@ module.exports.deleteCard = async (req, res) => {
     throw new BadRequestError('Переданы данные при удалении карточки');
   } catch (err) { console.log(err); }
 };
-
 
 // exports.deleteCard = (req, res, next) => {
 //   const { cardId } = req.params;
