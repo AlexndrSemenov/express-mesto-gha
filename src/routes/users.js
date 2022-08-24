@@ -13,18 +13,29 @@ const {
   nonExistingPath,
 } = require('../controllers/users');
 
+// регистрация пользователя
 router.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().min(8),
     name: Joi.string().min(2).max(30).default('Жак-Ив Кусто'),
     about: Joi.string().min(2).max(30).default('Исследователь'),
     // eslint-disable-next-line no-useless-escape
     avatar: Joi.string().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/).default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
   }).unknown(true),
-}), createUser); // регистрация пользователя
+}), createUser);
 
-router.post('/signin', login); // аутентификация(вход на сайт) пользователя
+// аутентификация(вход на сайт) пользователя
+router.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+    // name: Joi.string().min(2).max(30).default('Жак-Ив Кусто'),
+    // about: Joi.string().min(2).max(30).default('Исследователь'),
+    // // eslint-disable-next-line no-useless-escape
+    // avatar: Joi.string().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/).default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
+  }).unknown(true),
+}), login);
 router.get('/users/me', auth, getUsersMe); // возвращает информацию о текущем пользователе
 router.get('/users', auth, getUsers);
 router.get('/users/:userId', auth, celebrate({

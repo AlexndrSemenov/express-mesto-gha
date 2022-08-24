@@ -13,8 +13,8 @@ const userSchema = new mongoose.Schema({
     // },
   },
   password: {
-    // type: String,
-    // required: true,
+    type: String,
+    required: true,
     select: false, // Так по умолчанию хеш пароля пользователя не будет возвращаться из базы.
     // validate: {
     //   validator: (v) => isLength(v, { min: 5, max: 10 }),
