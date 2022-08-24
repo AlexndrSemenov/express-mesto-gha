@@ -81,8 +81,6 @@ exports.getUserById = (req, res, next) => User.findById(req.params.userId)
   .catch((err) => {
     if (err.message === 'NotValididId') {
       throw new NotFoundError('Пользователь с указанным _id не найден');
-    } else if (err.name === 'CastError') {
-      throw new BadRequestError('Передан некорректный _id при поиске пользователя');
     }
     next(err);
   })
