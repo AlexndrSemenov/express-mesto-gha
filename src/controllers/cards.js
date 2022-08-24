@@ -1,8 +1,8 @@
 const Card = require('../models/card');
-const BadRequestError = require('../errors/bad-request-err');
-const NotFoundError = require('../errors/not-found-err');
-const AlreadExistsErr = require('../errors/already-exists-err');
-const AuthorizationError = require('../errors/authorization-err');
+const BadRequestError = require('../errors/bad-request-err'); // 400
+const NotFoundError = require('../errors/not-found-err'); // 404
+const AlreadExistsErr = require('../errors/already-exists-err'); // 409
+const AuthorizationError = require('../errors/authorization-err'); // 401
 
 const HttpCodes = {
   badRequest: 400,
@@ -37,28 +37,50 @@ exports.getCards = (req, res, next) => Card.find({})
   })
   .catch(next);
 
-exports.deleteCard = (req, res) => {
-  const { cardId } = req.params;
-  const deletedCard = Card.findById(cardId);
-  if (req.user._id === deletedCard.owner.toString()) {
-    Card.findByIdAndRemove(req.params.cardId)
-      .orFail(new Error('NotValididId'))
-      .then((card) => res.send(card))
-      .catch((err) => {
-        if (err.message === 'NotValididId') {
-          res.status(HttpCodes.notFound).send({ message: 'Карточка с указанным _id не найдена.' });
-        } else if (err.name === 'CastError') {
-          res.status(HttpCodes.badRequest).send({ message: 'Переданы некорректные данные при удалении карточки.' });
-        } else {
-          res.status(HttpCodes.internalServerError).send({ message: `В процессе удаления карточки произошла ошибка ${err.name} с сообщением ${err.message}` });
-        }
-      });
-  } else {
-    res.status(HttpCodes.badRequest).send({ message: 'Переданы некорректные данные при удалении карточки.' });
-  }
+
+module.exports.deleteCard = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { cardId } = req.params;
+    const desiredCard = await Card.findById(cardId);
+    if (desiredCard.owner.toString() === userId) {
+      Card.findByIdAndRemove(req.params.cardId)
+        .orFail(new Error('NotValididId'))
+        .then((card) => res.send(card))
+        .catch((err) => {
+          if (err.message === 'NotValididId') {
+            throw new AuthorizationError('Карточка с указанным _id не найдена');
+          } else if (err.name === 'CastError') {
+            throw new AuthorizationError('Переданы некорректные данные при удалении карточки');
+          }
+          // next(err);
+        });
+    }
+    throw new BadRequestError('Переданы данные при удалении карточки');
+  } catch (err) { console.log(err); }
 };
 
-exports.likeCard = (req, res) => {
+
+// exports.deleteCard = (req, res, next) => {
+//   const { cardId } = req.params;
+//   const deletedCard = Card.findById(cardId);
+//   if (req.user._id === deletedCard.owner.toString()) {
+//     Card.findByIdAndRemove(req.params.cardId)
+//       .orFail(new Error('NotValididId'))
+//       .then((card) => res.send(card))
+//       .catch((err) => {
+//         if (err.message === 'NotValididId') {
+//           throw new AuthorizationError('Карточка с указанным _id не найдена');
+//         } else if (err.name === 'CastError') {
+//           throw new AuthorizationError('Переданы некорректные данные при удалении карточки');
+//         }
+//         next(err);
+//       });
+//   }
+//   throw new BadRequestError('Переданы некорректные данные при удалении карточки');
+// };
+
+exports.likeCard = (req, res, next) => {
   const myId = req.user._id;
   Card.findByIdAndUpdate(
     req.params.cardId,
@@ -69,16 +91,16 @@ exports.likeCard = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.message === 'NotValididId') {
-        res.status(HttpCodes.notFound).send({ message: 'Передан несуществующий _id карточки.' });
+        throw new AuthorizationError('При постановке лайка передан несуществующий _id карточки');
       } else if (err.name === 'CastError') {
-        res.status(HttpCodes.badRequest).send({ message: 'Переданы некорректные данные для постановки лайка.' });
-      } else {
-        res.status(HttpCodes.internalServerError).send({ message: `Ошибка по умолчанию ${err.name} с сообщением ${err.message}` });
+        throw new AuthorizationError('Переданы некорректные данные для постановки лайка');
       }
-    });
+      next(err);
+    })
+    .catch(next);
 };
 
-exports.dislikeCard = (req, res) => {
+exports.dislikeCard = (req, res, next) => {
   const myId = req.user._id;
   Card.findByIdAndUpdate(
     req.params.cardId,
@@ -89,11 +111,11 @@ exports.dislikeCard = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.message === 'NotValididId') {
-        res.status(HttpCodes.notFound).send({ message: 'Передан несуществующий _id карточки.' });
+        throw new AuthorizationError('При постановке лайка передан несуществующий _id карточки');
       } else if (err.name === 'CastError') {
-        res.status(HttpCodes.badRequest).send({ message: 'Переданы некорректные данные для снятия лайка.' });
-      } else {
-        res.status(HttpCodes.internalServerError).send({ message: `Ошибка по умолчанию ${err.name} с сообщением ${err.message}` });
+        throw new AuthorizationError('Переданы некорректные данные для постановки лайка');
       }
-    });
+      next(err);
+    })
+    .catch(next);
 };

@@ -1,10 +1,10 @@
 const bcrypt = require('bcryptjs'); // импортируем bcrypt
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken
 const User = require('../models/user');
-const BadRequestError = require('../errors/bad-request-err');
-const NotFoundError = require('../errors/not-found-err');
-const AlreadExistsErr = require('../errors/already-exists-err');
-const AuthorizationError = require('../errors/authorization-err');
+const BadRequestError = require('../errors/bad-request-err'); // 400
+const NotFoundError = require('../errors/not-found-err'); // 404
+const AlreadExistsErr = require('../errors/already-exists-err'); // 409
+const AuthorizationError = require('../errors/authorization-err'); // 401
 
 exports.createUser = (req, res, next) => { // регистрация пользователя
   const {

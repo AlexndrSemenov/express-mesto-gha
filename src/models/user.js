@@ -14,7 +14,6 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minlength: 8,
     required: true,
     select: false, // Так по умолчанию хеш пароля пользователя не будет возвращаться из базы.
     // validate: {
@@ -24,19 +23,14 @@ const userSchema = new mongoose.Schema({
   },
   name: { // у пользователя есть имя — опишем требования к имени в схеме:
     type: String, // имя — это строка
-    minlength: 2, // минимальная длина имени — 2 символа
-    maxlength: 30, // а максимальная — 30 символов
     default: 'Жак-Ив Кусто', // значение по умолчанию
   },
   about: {
     type: String,
-    minlength: 2,
-    maxlength: 30,
     default: 'Исследователь',
   },
   avatar: {
     type: String,
-    minlength: 2,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
 });
@@ -51,8 +45,8 @@ userSchema.statics.findUserByCredentials = function (email, password) {
         return Promise.reject(new Error('Неправильные почта или пароль')); // отклоняем промис с ошибкой и переходим в блок catch
       }
 
-      // eslint-disable-next-line no-undef
-      return bcrypt.compare(password, user.password) // Внимание игнор ошибки. Если пользователь найден, проверим пароль:// захешируем его и сравним с хешем в базе
+      // eslint-disable-next-line no-undef, max-len
+      return bcrypt.compare(password, user.password) // Если пользователь найден, проверим присланный пароль - сравним с паролем данного пользователя в баще
         .then((matched) => {
           if (!matched) {
             return Promise.reject(new Error('Неправильные почта или пароль')); // хеши не совпали — отклоняем промис

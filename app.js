@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');// здесь обрабатываем ошибки валидации celebrate
 const userRouter = require('./src/routes/users');
 const cardRouter = require('./src/routes/cards');
 
@@ -13,6 +14,8 @@ app.use(express.json());
 // подключаем роутер
 app.use('/', cardRouter);
 app.use('/', userRouter);
+// обработчик ошибок celebrate
+app.use(errors());
 // здесь обрабатываем все ошибки
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
