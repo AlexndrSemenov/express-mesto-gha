@@ -45,16 +45,16 @@ module.exports.deleteCard = async (req, res) => {
         .then((card) => res.send(card))
         .catch((err) => {
           if (err.message === 'NotValididId') {
-            throw new AuthorizationError('Карточка с указанным _id не найдена');
+            res.status(403).send({ message: 'НевозможнOOO удалить чужую карточку' });
           } else if (err.name === 'CastError') {
-            throw new AuthorizationError('Переданы некорректные данные при удалении карточки');
+            res.status(404).send({ message: 'Невозм' });
           }
           // next(err);
         });
     } else {
-      res.status(400).send({ message: 'Невозможно удалить чужую карточку' });
+      res.status(403).send({ message: 'Невозможно удалить чужую карточку' });
     }
-  } catch (err) { res.status(400).send({ message: 'Передан некорректный id карточки' }); }
+  } catch (err) { res.status(404).send({ message: 'Передан некорректный id карточки' }); }
 };
 
 // exports.deleteCard = (req, res, next) => {

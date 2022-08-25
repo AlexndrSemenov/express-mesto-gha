@@ -131,6 +131,5 @@ exports.updateUserAvatar = (req, res, next) => {
 };
 
 exports.nonExistingPath = (req, res, next) => {
-  throw new NotFoundError('Неправильный путь')
-    .catch(next);
+  next(new NotFoundError('Неправильный путь'));
 };
