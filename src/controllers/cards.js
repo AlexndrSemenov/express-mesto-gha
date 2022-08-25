@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 const BadRequestError = require('../errors/bad-request-err'); // 400
-// const NotFoundError = require('../errors/not-found-err'); // 404
+const NotFoundError = require('../errors/not-found-err'); // 404
 // const AlreadExistsErr = require('../errors/already-exists-err'); // 409
 const AuthorizationError = require('../errors/authorization-err'); // 401
 
@@ -83,7 +83,7 @@ exports.likeCard = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.message === 'NotValididId') {
-        throw new AuthorizationError('При постановке лайка передан несуществующий _id карточки');
+        throw new NotFoundError('При постановке лайка передан несуществующий _id карточки');
       } else if (err.name === 'CastError') {
         throw new AuthorizationError('Переданы некорректные данные для постановки лайка');
       }
@@ -103,9 +103,9 @@ exports.dislikeCard = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.message === 'NotValididId') {
-        throw new AuthorizationError('При постановке лайка передан несуществующий _id карточки');
+        throw new NotFoundError('При удалении лайка передан несуществующий _id карточки');
       } else if (err.name === 'CastError') {
-        throw new AuthorizationError('Переданы некорректные данные для постановки лайка');
+        throw new AuthorizationError('Переданы некорректные данные для снятия лайка');
       }
       next(err);
     })
