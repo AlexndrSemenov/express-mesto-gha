@@ -30,12 +30,15 @@ exports.getCards = (req, res, next) => Card.find({})
     throw new Error('При получении списка пользователей произошла ошибка');
   })
   .catch(next);
-
+// с корректным айди удаляет
 module.exports.deleteCard = async (req, res) => {
   try {
     const userId = req.user._id;
     const { cardId } = req.params;
     const desiredCard = await Card.findById(cardId);
+    // if (!desiredCard.owner) {
+    //   res.status(400).send({ message: 'Передан некорректный id карточки' });
+    // } else
     if (desiredCard.owner.toString() === userId) {
       Card.findByIdAndRemove(req.params.cardId)
         .orFail(new Error('NotValididId'))
@@ -48,9 +51,10 @@ module.exports.deleteCard = async (req, res) => {
           }
           // next(err);
         });
+    } else {
+      res.status(400).send({ message: 'Невозможно удалить чужую карточку' });
     }
-    throw new BadRequestError('Переданы данные при удалении карточки');
-  } catch (err) { console.log(err); }
+  } catch (err) { res.status(400).send({ message: 'Передан некорректный id карточки' }); }
 };
 
 // exports.deleteCard = (req, res, next) => {
