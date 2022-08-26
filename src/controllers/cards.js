@@ -1,7 +1,7 @@
 const Card = require('../models/card');
 const BadRequestError = require('../errors/bad-request-err'); // 400
 const NotFoundError = require('../errors/not-found-err'); // 404
-// const AlreadExistsErr = require('../errors/already-exists-err'); // 409
+const AnotherCardErr = require('../errors/another-card-err'); // 403
 const AuthorizationError = require('../errors/authorization-err'); // 401
 
 exports.createCard = (req, res, next) => {
@@ -30,51 +30,24 @@ exports.getCards = (req, res, next) => Card.find({})
     throw new Error('При получении списка пользователей произошла ошибка');
   })
   .catch(next);
-// с корректным айди удаляет
-module.exports.deleteCard = async (req, res) => {
+
+module.exports.deleteCard = async (req, res, next) => {
   try {
     const userId = req.user._id;
     const { cardId } = req.params;
     const desiredCard = await Card.findById(cardId);
-    // if (!desiredCard.owner) {
-    //   res.status(400).send({ message: 'Передан некорректный id карточки' });
-    // } else
     if (desiredCard.owner.toString() === userId) {
       Card.findByIdAndRemove(req.params.cardId)
-        .orFail(new Error('NotValididId'))
         .then((card) => res.send(card))
-        .catch((err) => {
-          if (err.message === 'NotValididId') {
-            res.status(403).send({ message: 'НевозможнOOO удалить чужую карточку' });
-          } else if (err.name === 'CastError') {
-            res.status(404).send({ message: 'Невозм' });
-          }
-          // next(err);
-        });
+        .catch(() => {
+          throw new Error('При удалении карточки произошла ошибка произошла ошибка');
+        })
+        .catch(next);
     } else {
-      res.status(403).send({ message: 'Невозможно удалить чужую карточку' });
+      next(new AnotherCardErr('Невозможно удалить чужую карточку'));
     }
-  } catch (err) { res.status(404).send({ message: 'Передан некорректный id карточки' }); }
+  } catch (err) { next(new NotFoundError('Передан некорректный id карточки')); }
 };
-
-// exports.deleteCard = (req, res, next) => {
-//   const { cardId } = req.params;
-//   const deletedCard = Card.findById(cardId);
-//   if (req.user._id === deletedCard.owner.toString()) {
-//     Card.findByIdAndRemove(req.params.cardId)
-//       .orFail(new Error('NotValididId'))
-//       .then((card) => res.send(card))
-//       .catch((err) => {
-//         if (err.message === 'NotValididId') {
-//           throw new AuthorizationError('Карточка с указанным _id не найдена');
-//         } else if (err.name === 'CastError') {
-//           throw new AuthorizationError('Переданы некорректные данные при удалении карточки');
-//         }
-//         next(err);
-//       });
-//   }
-//   throw new BadRequestError('Переданы некорректные данные при удалении карточки');
-// };
 
 exports.likeCard = (req, res, next) => {
   const myId = req.user._id;

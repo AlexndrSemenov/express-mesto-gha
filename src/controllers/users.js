@@ -41,10 +41,8 @@ exports.createUser = (req, res, next) => { // регистрация польз�
 exports.login = (req, res, next) => { // аутентификация(вход на сайт) пользователя
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
-  // return User.findOne({ email }).select('+password')
     .then((user) => { // аутентификация успешна! пользователь в переменной user
       // создадим токен
-      // eslint-disable-next-line no-unused-vars
       const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
       // вернём токен
       res.send({ token });
