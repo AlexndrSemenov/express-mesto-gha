@@ -5,48 +5,46 @@ const AnotherCardErr = require('../errors/another-card-err'); // 403
 const AuthorizationError = require('../errors/authorization-err'); // 401
 
 exports.createCard = (req, res, next) => {
-  const {
-    name, link, likes, createdAt,
-  } = req.body;
+  const { name, link } = req.body;
   const owner = req.user._id;
+  let likes;
+  let createdAt;
 
   Card.create({
     name, link, owner, likes, createdAt,
   })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные при создании карточки');
+        next(new BadRequestError('Переданы некорректные данные при создании карточки'));
+      } else {
+        next(err);
       }
-      next(err);
-    })
-    .catch(next);
+    });
 };
 
 exports.getCards = (req, res, next) => Card.find({})
   .populate(['owner'])
   .then((cards) => res.send({ data: cards }))
-  .catch(() => {
-    throw new Error('При получении списка пользователей произошла ошибка');
-  })
   .catch(next);
 
 module.exports.deleteCard = async (req, res, next) => {
   try {
     const userId = req.user._id;
     const { cardId } = req.params;
-    const desiredCard = await Card.findById(cardId);
-    if (desiredCard.owner.toString() === userId) {
-      Card.findByIdAndRemove(req.params.cardId)
-        .then((card) => res.send(card))
-        .catch(() => {
-          throw new Error('При удалении карточки произошла ошибка произошла ошибка');
-        })
-        .catch(next);
+    const deletedCard = await Card.findById(cardId);
+    if (deletedCard) {
+      if (deletedCard.owner.toString() === userId) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .then((card) => res.send(card))
+          .catch(next);
+      } else {
+        next(new AnotherCardErr('Невозможно удалить чужую карточку'));
+      }
     } else {
-      next(new AnotherCardErr('Невозможно удалить чужую карточку'));
+      next(new NotFoundError('Передан некорректный id карточки'));
     }
-  } catch (err) { next(new NotFoundError('Передан некорректный id карточки')); }
+  } catch (err) { next(err); }
 };
 
 exports.likeCard = (req, res, next) => {
@@ -56,17 +54,15 @@ exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: myId } }, // добавить элемент в массив, еслиеготамещёнет(только для монго)
     { new: true },
   )
-    .orFail(new Error('NotValididId'))
+    .orFail(() => new NotFoundError('При постановке лайка передан несуществующий _id карточки'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'NotValididId') {
-        throw new NotFoundError('При постановке лайка передан несуществующий _id карточки');
-      } else if (err.name === 'CastError') {
-        throw new AuthorizationError('Переданы некорректные данные для постановки лайка');
+      if (err.name === 'CastError') {
+        next(new AuthorizationError('Переданы некорректные данные для постановки лайка'));
+      } else {
+        next(err);
       }
-      next(err);
-    })
-    .catch(next);
+    });
 };
 
 exports.dislikeCard = (req, res, next) => {
@@ -76,15 +72,13 @@ exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: myId } }, // см. выше
     { new: true },
   )
-    .orFail(new Error('NotValididId'))
+    .orFail(() => new NotFoundError('При удалении лайка передан несуществующий _id карточки'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'NotValididId') {
-        throw new NotFoundError('При удалении лайка передан несуществующий _id карточки');
-      } else if (err.name === 'CastError') {
-        throw new AuthorizationError('Переданы некорректные данные для снятия лайка');
+      if (err.name === 'CastError') {
+        next(new AuthorizationError('Переданы некорректные данные для снятия лайка'));
+      } else {
+        next(err);
       }
-      next(err);
-    })
-    .catch(next);
+    });
 };

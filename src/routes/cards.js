@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const auth = require('../../middlewares/auth');
-
 const {
   createCard,
   getCards,
@@ -16,7 +15,7 @@ router.post('/cards', auth, celebrate({
     // eslint-disable-next-line max-len
     // link: Joi.string().required().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/),
     link: Joi.string().required().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/),
-  }).unknown(true),
+  }),
 }), createCard);
 
 router.get('/cards', auth, getCards);

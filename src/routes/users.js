@@ -10,18 +10,18 @@ const {
   getUserById,
   updateUserProfile,
   updateUserAvatar,
-  nonExistingPath,
+  // nonExistingPath,
 } = require('../controllers/users');
 
 // регистрация пользователя
 router.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
     name: Joi.string().min(2).max(30).default('Жак-Ив Кусто'),
     about: Joi.string().min(2).max(30).default('Исследователь'),
     avatar: Joi.string().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/).default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
-  }).unknown(true),
+  }),
 }), createUser);
 
 // аутентификация(вход на сайт) пользователя
@@ -29,7 +29,7 @@ router.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-  }).unknown(true),
+  }),
 }), login);
 
 // возвращает информацию о текущем пользователе
@@ -55,7 +55,5 @@ router.patch('/users/me/avatar', auth, celebrate({
     avatar: Joi.string().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/),
   }),
 }), updateUserAvatar);
-
-router.patch('/404', nonExistingPath);
 
 module.exports = router;
