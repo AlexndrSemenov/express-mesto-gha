@@ -2,17 +2,12 @@ const Card = require('../models/card');
 const BadRequestError = require('../errors/bad-request-err'); // 400
 const NotFoundError = require('../errors/not-found-err'); // 404
 const AnotherCardErr = require('../errors/another-card-err'); // 403
-const AuthorizationError = require('../errors/authorization-err'); // 401
 
 exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
-  let likes;
-  let createdAt;
 
-  Card.create({
-    name, link, owner, likes, createdAt,
-  })
+  Card.create({ name, link, owner })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -58,7 +53,7 @@ exports.likeCard = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new AuthorizationError('Переданы некорректные данные для постановки лайка'));
+        next(new BadRequestError('Переданы некорректные данные для постановки лайка'));
       } else {
         next(err);
       }
@@ -72,11 +67,12 @@ exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: myId } }, // см. выше
     { new: true },
   )
+    // orFail также как и здесь можно сделать в controllers - users.js
     .orFail(() => new NotFoundError('При удалении лайка передан несуществующий _id карточки'))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new AuthorizationError('Переданы некорректные данные для снятия лайка'));
+        next(new BadRequestError('Переданы некорректные данные для снятия лайка'));
       } else {
         next(err);
       }

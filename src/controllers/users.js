@@ -47,9 +47,8 @@ exports.login = (req, res, next) => { // аутентификация(вход �
       // вернём токен
       res.send({ token });
     })
-    .catch((err) => {
+    .catch(() => {
       next(new AuthorizationError('Неправильные логин или пароль'));
-      next(err);
     });
 };
 
@@ -58,9 +57,7 @@ exports.getUsersMe = (req, res, next) => User.findById(req.user._id)
   .then((user) => res.send(user))
   .catch((err) => {
     if (err.message === 'NotValididId') {
-      next(new AuthorizationError('Пользователь по указанному _id не найден'));
-    } else if (err.name === 'CastError') {
-      next(new BadRequestError('Передан некорректный _id при поиске пользователя'));
+      next(new NotFoundError('Пользователь по указанному _id не найден'));
     } else {
       next(err);
     }
@@ -68,9 +65,6 @@ exports.getUsersMe = (req, res, next) => User.findById(req.user._id)
 
 exports.getUsers = (req, res, next) => User.find({})
   .then((users) => res.send({ data: users }))
-  .catch(() => {
-    throw new Error('При получении списка пользователей произошла ошибка');
-  })
   .catch(next);
 
 exports.getUserById = (req, res, next) => User.findById(req.params.userId)
@@ -91,7 +85,7 @@ exports.updateUserProfile = (req, res, next) => {
     .orFail(new Error('NotValididId'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'NotValididId' || err.name === 'CastError') {
+      if (err.message === 'NotValididId') {
         next(new NotFoundError('Пользователь с указанным _id не найден'));
       } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
@@ -109,7 +103,7 @@ exports.updateUserAvatar = (req, res, next) => {
     .orFail(new Error('NotValididId'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'NotValididId' || err.name === 'CastError') {
+      if (err.message === 'NotValididId') {
         next(new NotFoundError('Пользователь с указанным _id не найден'));
       } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
